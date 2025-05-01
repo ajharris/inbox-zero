@@ -1,4 +1,4 @@
-# Gmail Inbox Manager
+# Inbox Zero Gmail Inbox Manager
 
 This project is a Gmail Inbox Manager that allows users to mark their entire Google inbox as read and scroll through messages at a user-defined speed to exempt specific files. It consists of a backend built with Flask and a frontend developed using React.
 
