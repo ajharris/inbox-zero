@@ -9,6 +9,7 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 # Ensure the user is guided to set up the credentials.json file properly
 # and handle potential errors during the OAuth flow.
 def authenticate_gmail():
+    print("REAL authenticate_gmail called", flush=True)
     creds = None
     try:
         if os.path.exists('token.pickle'):
