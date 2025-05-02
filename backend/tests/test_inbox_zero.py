@@ -57,5 +57,26 @@ class TestInboxZero(unittest.TestCase):
             userId='me', id='456', body={'removeLabelIds': ['UNREAD']}
         )
 
+class TestInboxZeroAuthentication(unittest.TestCase):
+
+    @patch('backend.inbox_zero.os.path.exists')
+    @patch('backend.inbox_zero.pickle.load')
+    def test_authenticate_gmail_no_credentials(self, mock_pickle_load, mock_path_exists):
+        # Simulate missing credentials.json and token.pickle
+        mock_path_exists.return_value = False
+
+        with self.assertRaises(FileNotFoundError):
+            authenticate_gmail()
+
+    @patch('backend.inbox_zero.build')
+    def test_mark_all_as_read_without_authentication(self, mock_build):
+        # Simulate an unauthenticated service
+        mock_build.side_effect = Exception("Authentication required")
+
+        with self.assertRaises(Exception) as context:
+            mark_all_as_read(None)
+
+        self.assertIn("Authentication required", str(context.exception))
+
 if __name__ == '__main__':
     unittest.main()

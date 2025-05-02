@@ -25,15 +25,22 @@ def authenticate_gmail():
             with open('token.pickle', 'wb') as token:
                 pickle.dump(creds, token)
 
+        if not creds or not creds.valid:
+            raise Exception("Authentication failed. Please log in to your Gmail account.")
+
         service = build('gmail', 'v1', credentials=creds)
         return service
     except FileNotFoundError as e:
         print(f"Error: {e}")
+        raise
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         raise
 
 def mark_all_as_read(service):
+    if not service:
+        raise Exception("Authentication required. Please log in to your Gmail account.")
+
     try:
         results = service.users().messages().list(userId='me', q='is:unread').execute()
         messages = results.get('messages', [])
@@ -50,3 +57,4 @@ def mark_all_as_read(service):
         print(f"Marked {len(messages)} messages as read.")
     except Exception as error:
         print(f"An error occurred: {error}")
+        raise
