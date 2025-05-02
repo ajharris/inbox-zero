@@ -10,32 +10,28 @@ from backend.inbox_zero import authenticate_gmail, mark_all_as_read
 class TestInboxZero(unittest.TestCase):
 
     @patch('backend.inbox_zero.build')
-    @patch('backend.inbox_zero.pickle')
+    @patch('builtins.open', new_callable=unittest.mock.mock_open, read_data='{}')
+    @patch('backend.inbox_zero.pickle.load')
     @patch('backend.inbox_zero.os.path.exists')
-    @patch('backend.inbox_zero.InstalledAppFlow')
-    def test_authenticate_gmail(self, mock_flow, mock_exists, mock_pickle, mock_build):
-        # Mock the token.pickle file existence
-        mock_exists.return_value = True
+    def test_authenticate_gmail(self, mock_path_exists, mock_pickle_load, mock_open, mock_build):
+        # Mock the existence of token.pickle and credentials.json
+        mock_path_exists.side_effect = lambda path: path in ['token.pickle', 'credentials.json']
 
-        # Simulate the absence of token.pickle for the first test
-        mock_exists.side_effect = lambda path: path in ['token.pickle', 'credentials.json']
-
-        # Remove the FileNotFoundError simulation for pickle.load
-        mock_pickle.load.side_effect = None
-
-        # Mock loading credentials from pickle
+        # Mock the pickle.load behavior
         mock_creds = MagicMock()
         mock_creds.valid = True
-        mock_pickle.load.return_value = mock_creds
+        mock_pickle_load.return_value = mock_creds
 
         # Mock the Gmail API build
         mock_service = MagicMock()
         mock_build.return_value = mock_service
 
+        # Call the function
         service = authenticate_gmail()
 
         # Assertions
-        mock_pickle.load.assert_called_once()
+        mock_pickle_load.assert_called_once()
+        mock_open.assert_called_once_with('token.pickle', 'rb')
         mock_build.assert_called_once_with('gmail', 'v1', credentials=mock_creds)
         self.assertEqual(service, mock_service)
 
