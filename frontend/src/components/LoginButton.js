@@ -7,8 +7,7 @@ const LoginButton = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
+            if (!response.headers.get('content-type')?.includes('application/json')) {
                 throw new Error('Expected JSON response but received something else.');
             }
             const data = await response.json();
